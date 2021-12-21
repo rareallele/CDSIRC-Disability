@@ -1,0 +1,153 @@
+---
+title: "R Notebook"
+output: html_notebook
+---
+```{r}
+library(tidyverse)
+library(plotly)
+library(htmlwidgets)
+```
+
+```{r}
+data = read_csv("data.csv") %>% 
+  filter(!`Case Number` %in% readxl::read_xlsx("C:\\Users\\jagvan\\OneDrive - South Australia Government\\Code\\exclusions_2021.xlsx")$`Case Number`) %>% 
+  mutate(`Age Group` = factor(`Age Group`, levels = 
+                                c("< 28 days", "1 to 11 months", "1 to 4 years", "5 to 9 years", "10 to 14 years", "15 to 17 years"))) %>% 
+  left_join(read_csv("C:\\Users\\jagvan\\OneDrive - South Australia Government\\REDCap\\ICD-10\\icd-10-chapters.csv")[c("Chapter", "Name")], by = "Chapter")
+
+disability = data %>% filter(`Disability Register` == "Yes") %>% 
+  mutate("Infant with disability" = ifelse(`Age (years)` < 1, "Yes", "No"))
+```
+
+```{r}
+disability_long = pivot_longer(disability, 
+                               cols = c(Autism:`Other disability`,`Infant with disability`),
+                               names_to = "Disability_category",
+                               values_to = "Yes_No") %>% 
+  filter(Yes_No == "Yes")
+
+yearly = disability_long %>%
+  mutate(Disability_category = as.factor(Disability_category),
+         Disability_category = reorder(Disability_category, Disability_category, FUN=length)) %>%
+  group_by(`Year of Death`, Disability_category) %>% 
+  tally()  
+```
+
+```{r}
+(year_category <- plot_ly(yearly,
+        type = "bar",
+        x = ~`Year of Death`,
+        y = ~n,
+        color = ~Disability_category,
+        hovertemplate = paste0("Year: ", yearly$`Year of Death`, "\n",
+                               "Deaths: ", yearly$n)) %>% 
+  layout(barmode = "stack",
+         font = list(size = 14),
+         xaxis = list(title = "Year"),
+         yaxis = list(title = "Deaths"),
+         legend = list(font=list(size = 12)))
+)
+
+saveWidget(partial_bundle(year_category), "year_category.html", selfcontained = T)
+```
+
+```{r}
+yearly_percentage = data %>% 
+  group_by(`Year of Death`, `Disability Register`) %>% 
+  tally() %>% 
+  pivot_wider(id_cols = `Year of Death`, names_from = `Disability Register`, values_from = n) %>% 
+  mutate(Total = Yes + No,
+         Prop_disability = Yes/Total)
+```
+
+```{r}
+(yearly_props = plot_ly(
+        yearly_percentage,
+        type = "scatter",
+        mode = "line",
+        hovertemplate = paste0("Year: ", yearly_percentage$`Year of Death`, "\n",
+                               "Number of deaths with disability: ", yearly_percentage$Yes, "\n",
+                               "Total deaths: ", yearly_percentage$Total, "\n",
+                               "Percentage of deaths: ", round(yearly_percentage$Prop_disability*100, 1), "%", "<extra></extra>")) %>% 
+    add_trace(
+      x = ~`Year of Death`,
+      y = ~round(Prop_disability*100, 1)) %>% 
+    add_trace(
+      x = ~`Year of Death`,
+      y = ~Yes,
+      yaxis = "y2"
+    ) %>% 
+  layout(font = list(size = 14),
+         yaxis = list(title = list(text = "Percentage of deaths with disability",
+                                   font = list(color = "darkorange")),
+                      ticksuffix = "%",
+                      range = list(10, 44)),
+         yaxis2 = list(overlaying = "y",
+                       side = "right",
+                       title = list(text = "Number of deaths with disability",
+                                    font = list(color = "green")),
+                       tickprefix = "",
+                       range = list(10, 44)),
+         xaxis = list(title = list(text = "Year",
+                                   standoff = 13)),
+         showlegend = FALSE,
+         margin = list(l = -1, r = 50, t = 0, b = 1))
+)
+
+saveWidget(partial_bundle(yearly_props), "yearly_props.html", selfcontained = T)
+```
+
+```{r}
+chapter_age = disability %>% 
+  mutate(Chapter = as.factor(Chapter)) %>% 
+  group_by(`Age Group`, Chapter, Name) %>% 
+  tally()
+```
+
+```{r}
+(figure2 <- plot_ly(chapter_age,
+        type = "bar",
+        x = ~`Age Group`,
+        y = ~n,
+        color = ~fct_rev(Chapter),
+        hovertemplate = paste0("Chapter ", chapter_age$Chapter, ": ", chapter_age$Name, "\n",
+                               "Deaths: ", chapter_age$n, "<extra></extra>")) %>% 
+  layout(barmode = "stack",
+         font = list(size = 14),
+         xaxis = list(title = "Age group"),
+         yaxis = list(title = "Deaths"),
+         legend = list(title = list(text="ICD-10\nChapter",
+                                    font=list(size=12)),
+                       font=list(size = 12)))
+)
+
+saveWidget(partial_bundle(figure2), "figure2.html", selfcontained = T)
+```
+
+```{r}
+age_chapter = disability %>% 
+  mutate(Chapter = as.factor(Chapter)) %>% 
+  group_by(Chapter, Name, `Age Group`) %>% 
+  tally()
+
+(figure3 <- plot_ly(age_chapter,
+        type = "bar",
+        x = ~Chapter,
+        y = ~n,
+        color = ~fct_rev(`Age Group`),
+        hovertemplate = paste0("Age group: ", age_chapter$`Age Group`, "\n",
+                               "Chapter ", age_chapter$Chapter, ": ", age_chapter$Name, "\n",
+                               "Deaths: ", age_chapter$n, "<extra></extra>")) %>% 
+  layout(barmode = "stack",
+         font = list(size = 14),
+         xaxis = list(title = "Chapter"),
+         yaxis = list(title = "Deaths"),
+         legend = list(title = list(text="   Age group"),
+                                    font=list(size=12)),
+                       font=list(size = 12))
+)
+
+saveWidget(partial_bundle(figure3), "figure3.html", selfcontained = T)
+```
+
+

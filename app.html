@@ -1,0 +1,42 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta name="viewport" content="width=device-width, initial-scale=1">
+    <link rel="stylesheet" href="https://maxcdn.bootstrapcdn.com/bootstrap/4.0.0/css/bootstrap.min.css" integrity="sha384-Gn5384xqQ1aoWXA+058RXPxPg6fy4IWvTNh0E263XmFcJlSAwiGgFAW/dAiS6JXm" crossorigin="anonymous">
+    <link rel="stylesheet" href="css/style.css">
+    <script src="scripts/script.js"></script> 
+</head>
+
+<body>
+    <br>
+    <div class="text-section">
+        <h4></h4>
+        <p>
+
+        </p>
+        <br>
+    </div>
+
+    <div class="row">
+        <div id="dropdown" class="col-12">
+            <div>
+                <label for="fig_select"><strong style="font-size: 1em;">Select figure:</strong></label><br>
+                <select id="fig_select" class="form-control" style="width: 100%" onchange="setIframe()">
+                    <option value="figure1.html">Figure 1: Deaths by year and disability category</option>
+                    <option value="figure2.html">Figure 2: ICD-10 chapter by age group</option>
+                    <option value="figure3.html">Figure 3: Age group by ICD-10 chapter</option>
+                </select>
+            </div>
+            <br>
+        </div>
+        
+        <div class="container">
+            <iframe class="responsive-iframe" src="figure1.html" id="figure-display"></iframe>
+        </div>
+    </div>
+
+        
+    <br><br>
+</body>
+
+</html>

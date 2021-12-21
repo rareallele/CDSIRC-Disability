@@ -1,0 +1,150 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta name="viewport" content="width=device-width, initial-scale=1">
+    <link rel="stylesheet" href="https://maxcdn.bootstrapcdn.com/bootstrap/4.0.0/css/bootstrap.min.css" integrity="sha384-Gn5384xqQ1aoWXA+058RXPxPg6fy4IWvTNh0E263XmFcJlSAwiGgFAW/dAiS6JXm" crossorigin="anonymous">
+    <style>
+        .container {
+            position: relative;
+            overflow: auto;
+            width: 100%;
+            max-width: 1000px;
+            padding-top: 56.25%; /* 16:9 Aspect Ratio (divide 9 by 16 = 0.5625) */
+        }
+    
+        /* Then style the iframe to fit in the container div with full height and width */
+        .responsive-iframe {
+            position: absolute;
+            top: 0;
+            left: 0;
+            bottom: 0;
+            right: 0;
+            width: 100%;
+            height: 100%;
+            border: none;
+        }
+
+        .text-section, .row {
+            width: 75%;
+            margin-left: auto;
+            margin-right: auto;
+        }
+
+        .text-section p {
+            font-size: 1.0em;
+            text-align: justify;
+            line-height: 1.7em;
+        }
+
+        h2 {
+            font-size: 1em;
+        }
+
+
+        @media (max-width: 900px){
+            .text-section, .row {
+                width: 80%;
+            }
+        }
+        @media (min-width: 1200px){
+            .text-section, .row {
+                width: 60%;
+            }
+        }
+
+        /* Style the buttons that are used to open and close the accordion panel */
+        .accordion {
+            background-color: #eee;
+            color: #444;
+            cursor: pointer;
+            padding: 18px;
+            width: 100%;
+            text-align: left;
+            border: none;
+            outline: none;
+            transition: 0.4s;
+        }
+        
+        /* Add a background color to the button if it is clicked on (add the .active class with JS), and when you move the mouse over it (hover) */
+        .active, .accordion:hover {
+            background-color: #ccc;
+        }
+        
+        /* Style the accordion panel. Note: hidden by default */
+        #panel {
+            padding: 0 18px;
+            background-color: white;
+            display: none;
+            overflow: hidden;
+        }
+
+        .accordion:after {
+            content: '\02795'; /* Unicode character for "plus" sign (+) */
+            font-size: 13px;
+            color: #777;
+            float: right;
+            margin-left: 5px;
+        }
+        
+        .active:after {
+            content: '\2796'; /* Unicode character for "minus" sign (-) */
+        }
+    </style>
+    <script>
+        function setIframe() {
+            var selection = document.getElementById("fig_select").value;
+            document.getElementById("figure-display").src = selection
+        }
+
+
+        function openPanel() {
+            var panel = document.getElementById("panel");
+            var acc = document.getElementsByClassName("accordion")[0]
+            /* Toggle between adding and removing the "active" class,
+            to highlight the button that controls the panel */
+            acc.classList.toggle("active");
+            /* Toggle between hiding and showing the active panel */
+            if (panel.style.display === "block") {
+                panel.style.display = "none";
+            } else {
+                panel.style.display = "block";
+            }
+        }
+    </script> 
+</head>
+
+<body>
+    <br>
+    <div class="text-section">
+        <h4></h4>
+        <p>
+
+        </p>
+        <br>
+    </div>
+
+    <div class="row">
+        <div id="dropdown" class="col-12">
+            <div>
+                <label for="fig_select"><strong style="font-size: 1em;">Select figure:</strong></label><br>
+                <select id="fig_select" class="form-control" style="width: 100%" onchange="setIframe()">
+                    <option value="figure1.html">Figure 1: Deaths by year and disability category</option>
+                    <option value="figure2.html">Figure 2: ICD-10 chapter by age group</option>
+                    <option value="figure3.html">
+                        Figure 3: Age group by ICD-10 chapter
+                    </option>
+                </select>
+            </div>
+            <br>
+        </div>
+        
+        <div class="container">
+            <iframe class="responsive-iframe" src="figure1.html" id="figure-display"></iframe>
+        </div>
+    </div>
+
+        
+    <br><br>
+</body>
+
+</html>
