@@ -74,7 +74,7 @@ yearly_percentage = data %>%
       y = ~round(Prop_disability*100, 1)) %>% 
     add_trace(
       x = ~`Year of Death`,
-      y = ~Yes,
+      y = ~Total,
       yaxis = "y2"
     ) %>% 
   layout(font = list(size = 14),
@@ -84,17 +84,40 @@ yearly_percentage = data %>%
                       range = list(10, 44)),
          yaxis2 = list(overlaying = "y",
                        side = "right",
-                       title = list(text = "Number of deaths with disability",
+                       title = list(text = "Total deaths",
                                     font = list(color = "green")),
-                       tickprefix = "",
-                       range = list(10, 44)),
+                       range = list(65, 144)),
          xaxis = list(title = list(text = "Year",
                                    standoff = 13)),
          showlegend = FALSE,
          margin = list(l = -1, r = 50, t = 0, b = 1))
 )
 
-saveWidget(partial_bundle(yearly_props), "yearly_props.html", selfcontained = T)
+(yearly_deaths = plot_ly(
+        yearly_percentage,
+        type = "scatter",
+        mode = "line",
+        hovertemplate = paste0("Year: ", yearly_percentage$`Year of Death`, "\n",
+                               "Total deaths: ", yearly_percentage$Total, "\n",
+                               "Number of deaths with disability: ", yearly_percentage$Yes, "\n",
+                               "Percentage of deaths with disability: ", round(yearly_percentage$Prop_disability*100, 1), "%", "<extra></extra>")) %>% 
+    add_trace(
+      x = ~`Year of Death`,
+      y = ~Total,
+      name = "Total") %>% 
+    add_trace(
+      x = ~`Year of Death`,
+      y = ~Yes,
+      name = "Disability") %>% 
+  layout(font = list(size = 14),
+         xaxis = list(title = list(text = "Year",
+                                   standoff = 13)),
+         yaxis = list(title = list(text = "Deaths")),
+         showlegend = TRUE,
+         margin = list(l = -1, r = 50, t = 0, b = 1))
+)
+
+saveWidget(partial_bundle(yearly_deaths), "yearly_deaths.html", selfcontained = T)
 ```
 
 ```{r}
@@ -105,7 +128,7 @@ chapter_age = disability %>%
 ```
 
 ```{r}
-(figure2 <- plot_ly(chapter_age,
+(chapter_age_fig <- plot_ly(chapter_age,
         type = "bar",
         x = ~`Age Group`,
         y = ~n,
@@ -121,7 +144,7 @@ chapter_age = disability %>%
                        font=list(size = 12)))
 )
 
-saveWidget(partial_bundle(figure2), "figure2.html", selfcontained = T)
+saveWidget(partial_bundle(chapter_age_fig), "chapter_age.html", selfcontained = T)
 ```
 
 ```{r}
@@ -130,7 +153,7 @@ age_chapter = disability %>%
   group_by(Chapter, Name, `Age Group`) %>% 
   tally()
 
-(figure3 <- plot_ly(age_chapter,
+(age_chapter_fig <- plot_ly(age_chapter,
         type = "bar",
         x = ~Chapter,
         y = ~n,
@@ -147,7 +170,55 @@ age_chapter = disability %>%
                        font=list(size = 12))
 )
 
-saveWidget(partial_bundle(figure3), "figure3.html", selfcontained = T)
+saveWidget(partial_bundle(age_chapter_fig), "age_chapter.html", selfcontained = T)
 ```
 
+----
+Without infants
+```{r}
+yearly_percentage_no_infants = data %>%
+  mutate(Infant_disability = ifelse(`Age (years)` < 1 & `Disability Register` == "Yes", "Yes", "No")) %>% 
+  filter(Infant_disability == "No") %>% 
+  group_by(`Year of Death`, `Disability Register`) %>% 
+  tally() %>% 
+  pivot_wider(id_cols = `Year of Death`, names_from = `Disability Register`, values_from = n) %>% 
+  mutate(Total = Yes + No,
+         Prop_disability = Yes/Total)
+```
 
+```{r}
+(plot_ly(
+        yearly_percentage_no_infants,
+        type = "scatter",
+        mode = "line",
+        hovertemplate = paste0("Year: ", yearly_percentage_no_infants$`Year of Death`, "\n",
+                               "Number of deaths with disability: ", yearly_percentage_no_infants$Yes, "\n",
+                               "Total deaths: ", yearly_percentage_no_infants$Total, "\n",
+                               "Percentage of deaths: ", round(yearly_percentage_no_infants$Prop_disability*100, 1), "%", "<extra></extra>")) %>% 
+    add_trace(
+      x = ~`Year of Death`,
+      y = ~round(Prop_disability*100, 1)) %>% 
+    add_trace(
+      x = ~`Year of Death`,
+      y = ~Yes,
+      yaxis = "y2"
+    ) %>% 
+  layout(font = list(size = 14),
+         yaxis = list(title = list(text = "Percentage of deaths with disability",
+                                   font = list(color = "darkorange")),
+                      ticksuffix = "%",
+                      range = list(0, 30)),
+         yaxis2 = list(overlaying = "y",
+                       side = "right",
+                       title = list(text = "Number of deaths with disability",
+                                    font = list(color = "green")),
+                       tickprefix = "",
+                       range = list(0, 30)),
+         xaxis = list(title = list(text = "Year",
+                                   standoff = 13)),
+         showlegend = FALSE,
+         margin = list(l = -1, r = 50, t = 0, b = 1))
+)
+
+#saveWidget(partial_bundle(yearly_props), "yearly_props.html", selfcontained = T)
+```
