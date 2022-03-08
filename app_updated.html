@@ -1,0 +1,83 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta name="viewport" content="width=device-width, initial-scale=1">
+    <link rel="stylesheet" href="https://maxcdn.bootstrapcdn.com/bootstrap/4.0.0/css/bootstrap.min.css" integrity="sha384-Gn5384xqQ1aoWXA+058RXPxPg6fy4IWvTNh0E263XmFcJlSAwiGgFAW/dAiS6JXm" crossorigin="anonymous">
+    <link rel="stylesheet" href="css/style.css">
+    <script src="https://code.jquery.com/jquery-3.5.1.min.js"></script>
+    <script src="scripts/script.js"></script> 
+    
+</head>
+
+<body>
+    <br>
+    <div class="text-section">
+        <h4></h4>
+        <p>
+
+        </p>
+        <br>
+    </div>
+
+    <div class="row">
+        <div id="dropdown" class="col-12">
+            <div>
+                <label for="fig_select"><strong style="font-size: 1em;">Select figure:</strong></label><br>
+                <select id="fig_select" class="form-control" style="width: 100%" onchange="setIframe()">
+                    <option value="yearly_deaths.html">Figure 1: Deaths by year</option>
+                    <option value="year_category.html">Figure 2: Deaths by year and disability category</option>
+                    <option value="chapter_age.html">Figure 3: ICD-10 chapter by age group</option>
+                    <option value="age_chapter.html">Figure 4: Age group by ICD-10 chapter</option>
+                    <option value="seifa_number.html">Figure 5: Deaths by SEIFA quintile</option>
+                    <option value="remote_number.html">Figure 6: Deaths by remoteness area</option>
+                    <option value="regions_number.html">Figure 7: Deaths by region</option>
+                    <option value="cp_contact.html">Figure 8: Deaths by child protection contact</option>
+                    <option value="atsi.html">Figure 9: Deaths by cultural background</option>
+                </select>
+            </div>
+            <br>
+        </div>
+
+        <div id="seifa-dropdown" class="col-12" style="display: none;">
+            <div>
+                <label for="seifa_select"><strong style="font-size: 1em;">Select statistic:</strong></label><br>
+                <select id="seifa_select" class="form-control" style="width: 100%" onchange="setSeifa()">
+                    <option value="seifa_number.html">Number of deaths</option>
+                    <option value="seifa_rate.html">Death rate</option>
+                </select>
+            </div>
+            <br>
+        </div>  
+        
+        <div id="remote-dropdown" class="col-12" style="display: none;">
+            <div>
+                <label for="remote_select"><strong style="font-size: 1em;">Select statistic:</strong></label><br>
+                <select id="remote_select" class="form-control" style="width: 100%" onchange="setRemote()">
+                    <option value="remote_number.html">Number of deaths</option>
+                    <option value="remote_rate.html">Death rate</option>
+                </select>
+            </div>
+            <br>
+        </div>
+
+        <div id="regions-dropdown" class="col-12" style="display: none;">
+            <div>
+                <label for="regions_select"><strong style="font-size: 1em;">Select statistic:</strong></label><br>
+                <select id="regions_select" class="form-control" style="width: 100%" onchange="setRegions()">
+                    <option value="regions_number.html">Number of deaths</option>
+                    <option value="regions_rate.html">Death rate</option>
+                </select>
+            </div>
+            <br>
+        </div>
+        
+        <div class="container">
+            <iframe class="responsive-iframe" src="yearly_deaths.html" id="figure-display"></iframe>
+        </div>
+    </div>
+
+        
+    <br><br>
+</body>
+
+</html>

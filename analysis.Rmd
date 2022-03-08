@@ -9,11 +9,14 @@ library(htmlwidgets)
 ```
 
 ```{r}
-data = read_csv("data.csv") %>% 
-  filter(!`Case Number` %in% readxl::read_xlsx("C:\\Users\\jagvan\\OneDrive - South Australia Government\\Code\\exclusions_2021.xlsx")$`Case Number`) %>% 
+data = read_csv("data_0322.csv") %>% 
+  filter(!`Case Number` %in% readxl::read_xlsx("C:\\Users\\jagvan\\OneDrive - South Australia Government\\Code\\exclusions_2022.xlsx")$`Case Number`,
+         Year %in% seq(2005,2020)) %>% 
   mutate(`Age Group` = factor(`Age Group`, levels = 
-                                c("< 28 days", "1 to 11 months", "1 to 4 years", "5 to 9 years", "10 to 14 years", "15 to 17 years"))) %>% 
-  left_join(read_csv("C:\\Users\\jagvan\\OneDrive - South Australia Government\\REDCap\\ICD-10\\icd-10-chapters.csv")[c("Chapter", "Name")], by = "Chapter")
+                                c("< 28 days", "1 to 11 months", "1 to 4 years", "5 to 9 years", 
+                                  "10 to 14 years", "15 to 17 years"))) 
+# %>% 
+#   left_join(read_csv("C:\\Users\\jagvan\\OneDrive - South Australia Government\\REDCap\\ICD-10\\icd-10-chapters.csv")[c("Chapter", "Name")], by = "Chapter")
 
 disability = data %>% filter(`Disability Register` == "Yes") %>% 
   mutate("Infant with disability" = ifelse(`Age (years)` < 1, "Yes", "No"))
@@ -29,17 +32,17 @@ disability_long = pivot_longer(disability,
 yearly = disability_long %>%
   mutate(Disability_category = as.factor(Disability_category),
          Disability_category = reorder(Disability_category, Disability_category, FUN=length)) %>%
-  group_by(`Year of Death`, Disability_category) %>% 
+  group_by(Year, Disability_category) %>% 
   tally()  
 ```
 
 ```{r}
 (year_category <- plot_ly(yearly,
         type = "bar",
-        x = ~`Year of Death`,
+        x = ~Year,
         y = ~n,
         color = ~Disability_category,
-        hovertemplate = paste0("Year: ", yearly$`Year of Death`, "\n",
+        hovertemplate = paste0("Year: ", yearly$Year, "\n",
                                "Deaths: ", yearly$n)) %>% 
   layout(barmode = "stack",
          font = list(size = 14),
@@ -48,14 +51,14 @@ yearly = disability_long %>%
          legend = list(font=list(size = 12)))
 )
 
-saveWidget(partial_bundle(year_category), "year_category.html", selfcontained = T)
+#saveWidget(partial_bundle(year_category), "year_category.html", selfcontained = T)
 ```
 
 ```{r}
 yearly_percentage = data %>% 
-  group_by(`Year of Death`, `Disability Register`) %>% 
+  group_by(Year, `Disability Register`) %>% 
   tally() %>% 
-  pivot_wider(id_cols = `Year of Death`, names_from = `Disability Register`, values_from = n) %>% 
+  pivot_wider(id_cols = Year, names_from = `Disability Register`, values_from = n) %>% 
   mutate(Total = Yes + No,
          Prop_disability = Yes/Total)
 ```
@@ -65,15 +68,15 @@ yearly_percentage = data %>%
         yearly_percentage,
         type = "scatter",
         mode = "line",
-        hovertemplate = paste0("Year: ", yearly_percentage$`Year of Death`, "\n",
+        hovertemplate = paste0("Year: ", yearly_percentage$Year, "\n",
                                "Number of deaths with disability: ", yearly_percentage$Yes, "\n",
                                "Total deaths: ", yearly_percentage$Total, "\n",
                                "Percentage of deaths: ", round(yearly_percentage$Prop_disability*100, 1), "%", "<extra></extra>")) %>% 
     add_trace(
-      x = ~`Year of Death`,
+      x = ~Year,
       y = ~round(Prop_disability*100, 1)) %>% 
     add_trace(
-      x = ~`Year of Death`,
+      x = ~Year,
       y = ~Total,
       yaxis = "y2"
     ) %>% 
@@ -97,16 +100,16 @@ yearly_percentage = data %>%
         yearly_percentage,
         type = "scatter",
         mode = "line",
-        hovertemplate = paste0("Year: ", yearly_percentage$`Year of Death`, "\n",
+        hovertemplate = paste0("Year: ", yearly_percentage$Year, "\n",
                                "Total deaths: ", yearly_percentage$Total, "\n",
                                "Number of deaths with disability: ", yearly_percentage$Yes, "\n",
                                "Percentage of deaths with disability: ", round(yearly_percentage$Prop_disability*100, 1), "%", "<extra></extra>")) %>% 
     add_trace(
-      x = ~`Year of Death`,
+      x = ~Year,
       y = ~Total,
       name = "Total") %>% 
     add_trace(
-      x = ~`Year of Death`,
+      x = ~Year,
       y = ~Yes,
       name = "Disability") %>% 
   layout(font = list(size = 14),
@@ -144,7 +147,7 @@ chapter_age = disability %>%
                        font=list(size = 12)))
 )
 
-saveWidget(partial_bundle(chapter_age_fig), "chapter_age.html", selfcontained = T)
+#saveWidget(partial_bundle(chapter_age_fig), "chapter_age.html", selfcontained = T)
 ```
 
 ```{r}
@@ -170,7 +173,7 @@ age_chapter = disability %>%
                        font=list(size = 12))
 )
 
-saveWidget(partial_bundle(age_chapter_fig), "age_chapter.html", selfcontained = T)
+#saveWidget(partial_bundle(age_chapter_fig), "age_chapter.html", selfcontained = T)
 ```
 
 ----
@@ -222,3 +225,271 @@ yearly_percentage_no_infants = data %>%
 
 #saveWidget(partial_bundle(yearly_props), "yearly_props.html", selfcontained = T)
 ```
+
+----------------------------
+Follow-up analysis
+SEIFA
+```{r}
+custom_colours <- c("#FEB627", "#27B9FE", "mediumseagreen", "sienna2", "slateblue2")
+
+postcode_population = read_csv("C:\\Users\\jagvan\\OneDrive - South Australia Government\\Code\\Population\\postcode_denominators_SRA.csv")
+
+seifa_pop <- postcode_population %>% 
+  group_by(SEIFA_disadvantage) %>% 
+  summarise(pop = sum(adjusted_population))
+
+seifa_data = disability %>% 
+  group_by(SEIFA_disadvantage) %>% 
+  summarise(n = n(), perc = n/nrow(disability)*100) %>% 
+  left_join(seifa_pop, by = "SEIFA_disadvantage") %>% 
+  mutate(rate = n/pop*100000,
+         SEIFA_disadvantage = as.factor(SEIFA_disadvantage),
+         SEIFA_disadvantage = fct_recode(SEIFA_disadvantage, "5 \n(least disadvantaged)" = "5", 
+                                         "1 \n(most disadvantaged" = "1")) %>% 
+  filter(!is.na(SEIFA_disadvantage)) 
+
+(seifa_number = plot_ly(seifa_data,
+        type = 'bar',
+        #orientation = 'h',
+        color = ~SEIFA_disadvantage,
+        x = ~SEIFA_disadvantage,
+        y = ~n,
+        colors = custom_colours,
+        hovertemplate = paste0("Number of deaths: ", seifa_data$n, "\n",
+                               "Death rate: ", round(seifa_data$rate,1), " deaths per 100,000 population", "<extra></extra>")) %>% 
+  layout(title = list(text = ""),
+         showlegend = FALSE,
+         yaxis = list(title = list(text = "Number of deaths", standoff = 15)),
+         xaxis = list(title = "Index of Relative Socio-Economic Disadvantage"),
+         margin = list(l=0,r=0,t=30,b=40),
+         font = list(size = 14))
+)
+
+saveWidget(seifa_number, "seifa_number.html", selfcontained = T)
+```
+
+```{r}
+(seifa_rate = plot_ly(seifa_data,
+        type = 'bar',
+        #orientation = 'h',
+        color = ~SEIFA_disadvantage,
+        x = ~SEIFA_disadvantage,
+        y = ~rate,
+        colors = custom_colours,
+        hovertemplate = paste0("Number of deaths: ", seifa_data$n, "\n",
+                               "Death rate: ", round(seifa_data$rate,1), " deaths per 100,000 population", "<extra></extra>")) %>% 
+  layout(title = list(text = ""),
+         showlegend = FALSE,
+         yaxis = list(title = list(text = "Death rate per \n 100,000 population", standoff = 15)),
+         xaxis = list(title = "Index of Relative Socio-Economic Disadvantage"),
+         margin = list(l=0,r=0,t=30,b=40),
+         font = list(size = 14))
+)
+saveWidget(seifa_rate, "seifa_rate.html", selfcontained = T)
+```
+
+
+Remoteness
+```{r}
+remote_pop <- postcode_population %>% 
+  group_by(ra_name) %>% 
+  summarise(pop = sum(adjusted_population))
+
+remote_data = disability %>% 
+  group_by(ra_name) %>% 
+  summarise(n = n(), perc = n/nrow(disability)*100) %>% 
+  left_join(remote_pop, by = "ra_name") %>% 
+  mutate(rate = n/pop*100000,
+         ra_name = as.factor(ra_name),
+         ra_name = fct_relevel(ra_name, "Major Cities of Australia","Inner Regional Australia",
+                               "Outer Regional Australia","Remote Australia","Very Remote Australia")) %>% 
+  filter(!is.na(ra_name)) 
+
+(remote_number = plot_ly(
+        data = remote_data,
+        type = 'bar',
+        #orientation = 'h',
+        color = ~ra_name,
+        x = ~ra_name,
+        y = ~n,
+        colors = custom_colours,
+        hovertemplate = paste0("Number of deaths: ", remote_data$n, "\n",
+                               "Death rate: ", round(remote_data$rate,1)," deaths per 100,000 population\n",
+                               "Average population (0-17 years): ", round(remote_data$pop/16,0),
+                               "<extra></extra>")) %>% 
+  layout(title = list(text = "Remoteness Areas (SA)"),
+         showlegend = FALSE,
+         yaxis = list(title = list(text = "Number of deaths", standoff = 15)),
+         xaxis = list(title = ""),
+         margin = list(l=20,r=0,t=70,b=10),
+         font = list(size = 14))
+)
+
+(remote_rate = plot_ly(
+        data = remote_data,
+        type = 'bar',
+        #orientation = 'h',
+        color = ~ra_name,
+        x = ~ra_name,
+        y = ~rate,
+        colors = custom_colours,
+        visible = TRUE,
+        hovertemplate = paste0("Number of deaths: ", remote_data$n, "\n",
+                               "Death rate: ", round(remote_data$rate,1)," deaths per 100,000 population\n",
+                               "Average population (0-17 years): ", round(remote_data$pop/16,0),
+                               "<extra></extra>")) %>% 
+  layout(title = list(text = "Remoteness Areas (SA)"),
+         showlegend = FALSE,
+         yaxis = list(title = list(text = "Death rate per \n 100,000 population", standoff = 15)),
+         xaxis = list(title = ""),
+         margin = list(l=20,r=0,t=70,b=10),
+         font = list(size = 14))
+)
+
+saveWidget(remote_number, "remote_number.html", selfcontained = F, libdir = "index")
+saveWidget(remote_rate, "remote_rate.html", selfcontained = T)
+```
+
+
+Regions
+```{r}
+map_df_json <- rjson::fromJSON(file = "C:\\Users\\jagvan\\OneDrive - South Australia Government\\Code\\Population\\gov_regions\\SAGovtRegions_GDA2020.json")
+region_pop = postcode_population %>% 
+  filter(Year %in% seq(2016,2020),
+         !is.na(region)) %>% 
+  group_by(region) %>% 
+  summarise(pop = sum(adjusted_population))
+
+rates_regions = disability %>% 
+  group_by(region) %>% 
+  summarise(n = n()) %>% 
+  left_join(region_pop, by = "region") %>% 
+  mutate(rate = n/pop*100000) %>% 
+  filter(!is.na(region))
+
+map_colours <- c("#FFFFFF", "#FEB627")
+pal <- colorRampPalette(map_colours)
+colourscale <- pal(100)
+(regions_number = plot_ly() %>% 
+  add_trace(type="choroplethmapbox",
+            geojson=map_df_json,
+            locations=rates_regions$region,
+            z=rates_regions$n,
+            colors=colourscale,
+            #zmax=34,
+            #zmin=18,
+            featureidkey="properties.region",
+            marker=list(opacity=0.75),
+            text=rates_regions$region,
+            hovertemplate=paste0("Number of deaths: ", rates_regions$n, "\n",
+                                 "Death rate: ", round(rates_regions$rate,0), "\n",
+                                 "Average population: ", round(rates_regions$pop/16, 0),
+                                 "<extra>%{text}</extra>")) %>% 
+  colorbar(title = "Number of deaths",
+           x=1, y=1,
+           len=1) %>% 
+  layout(mapbox=list(style="carto-positron",
+                     zoom=4.5,
+                     center=list(lon=134.5, lat=-33)))
+)
+saveWidget(regions_number, "regions_number.html", selfcontained = F, libdir = "index")
+```
+
+
+```{r}
+(regions_rate = plot_ly() %>% 
+  add_trace(type="choroplethmapbox",
+            geojson=map_df_json,
+            locations=rates_regions$region,
+            z=round(rates_regions$rate,0),
+            colors=colourscale,
+            #zmax=34,
+            #zmin=18,
+            featureidkey="properties.region",
+            marker=list(opacity=0.75),
+            text=rates_regions$region,
+            hovertemplate=paste0("Number of deaths: ", rates_regions$n, "\n",
+                                 "Death rate: ", round(rates_regions$rate,0), "\n",
+                                 "Average population: ", round(rates_regions$pop/16, 0),
+                                 "<extra>%{text}</extra>")) %>% 
+  colorbar(title = "Death rate \nper 100,000 \npopulation",
+           x=1, y=1,
+           len=1) %>% 
+  layout(mapbox=list(style="carto-positron",
+                     zoom=4.5,
+                     center=list(lon=134.5, lat=-33)))
+)
+saveWidget(regions_rate, "regions_rate.html", selfcontained = F, libdir = "index")
+```
+
+
+Child protection
+```{r}
+cp_data = data %>% 
+  filter(!is.na(`CP Contact`)) %>% 
+  group_by(`Disability Register`, `CP Contact`) %>% 
+  summarise(n = n()) %>% 
+  add_column(prop = c(.[[1,3]]/(.[[1,3]]+.[[2,3]]), # compute proportions
+                      .[[2,3]]/(.[[1,3]]+.[[2,3]]),
+                      .[[3,3]]/(.[[3,3]]+.[[4,3]]),
+                      .[[4,3]]/(.[[3,3]]+.[[4,3]])))
+
+(cp_contact = plot_ly(
+        data = cp_data,
+        type = 'bar',
+        #orientation = 'h',
+        color = ~`CP Contact`,
+        x = ~`Disability Register`,
+        y = ~round(prop*100,1),
+        colors = custom_colours[c(1,2)],
+        hovertemplate = paste0("Disability register: %{x} \n",
+                               "Proportion of deaths: %{y} \n",
+                               "Number of deaths: ", cp_data$n, "\n",
+                               "<extra></extra>")) %>% 
+  layout(title = list(text = ""),
+         legend = list(title = list(text = "CP Contact"),
+                       font = list(size = 12)),
+         yaxis = list(title = list(text = "Proportion of deaths", standoff = 15),
+                      ticksuffix = "%"),
+         xaxis = list(title = "Disability register", standoff = 15),
+         margin = list(l=20,r=0,t=70,b=10),
+         font = list(size = 14))
+)
+saveWidget(cp_contact, "cp_contact.html", selfcontained = F, libdir = "index")
+```
+
+
+ATSI
+```{r}
+atsi_data = data %>% 
+  group_by(`Disability Register`, `Cultural Background`) %>% 
+  summarise(n = n()) %>% 
+  add_column(prop = c(.[[1,3]]/(.[[1,3]]+.[[2,3]]), # compute proportions
+                      .[[2,3]]/(.[[1,3]]+.[[2,3]]),
+                      .[[3,3]]/(.[[3,3]]+.[[4,3]]),
+                      .[[4,3]]/(.[[3,3]]+.[[4,3]])))
+
+(atsi = plot_ly(
+        data = atsi_data,
+        type = 'bar',
+        #orientation = 'h',
+        color = ~`Cultural Background`,
+        x = ~`Disability Register`,
+        y = ~round(prop*100,1),
+        colors = custom_colours[c(1,2)],
+        hovertemplate = paste0("Disability register: %{x} \n",
+                               "Proportion of deaths: %{y} \n",
+                               "Number of deaths: ", cp_data$n, "\n",
+                               "<extra></extra>")) %>% 
+  layout(title = list(text = ""),
+         legend = list(title = list(text = "Cultural background"),
+                       font = list(size = 12)),
+         yaxis = list(title = list(text = "Proportion of deaths", standoff = 15),
+                      ticksuffix = "%"),
+         xaxis = list(title = "Disability register", standoff = 15),
+         margin = list(l=20,r=0,t=70,b=10),
+         font = list(size = 14))
+)
+saveWidget(atsi, "atsi.html", selfcontained = F, libdir = "index")
+```
+
