@@ -355,8 +355,7 @@ Regions
 ```{r}
 map_df_json <- rjson::fromJSON(file = "C:\\Users\\jagvan\\OneDrive - South Australia Government\\Code\\Population\\gov_regions\\SAGovtRegions_GDA2020.json")
 region_pop = postcode_population %>% 
-  filter(Year %in% seq(2016,2020),
-         !is.na(region)) %>% 
+  filter(!is.na(region)) %>% 
   group_by(region) %>% 
   summarise(pop = sum(adjusted_population))
 
@@ -461,7 +460,8 @@ saveWidget(cp_contact, "cp_contact.html", selfcontained = F, libdir = "index")
 
 ATSI
 ```{r}
-atsi_data = data %>% 
+atsi_data = data %>%
+  mutate(`Cultural Background` = fct_recode(`Cultural Background`, Aboriginal = "ATSI")) %>% 
   group_by(`Disability Register`, `Cultural Background`) %>% 
   summarise(n = n()) %>% 
   add_column(prop = c(.[[1,3]]/(.[[1,3]]+.[[2,3]]), # compute proportions
@@ -479,10 +479,10 @@ atsi_data = data %>%
         colors = custom_colours[c(1,2)],
         hovertemplate = paste0("Disability register: %{x} \n",
                                "Proportion of deaths: %{y} \n",
-                               "Number of deaths: ", cp_data$n, "\n",
+                               "Number of deaths: ", atsi_data$n, "\n",
                                "<extra></extra>")) %>% 
   layout(title = list(text = ""),
-         legend = list(title = list(text = "Cultural background"),
+         legend = list(title = list(text = "Cultural \nbackground"),
                        font = list(size = 12)),
          yaxis = list(title = list(text = "Proportion of deaths", standoff = 15),
                       ticksuffix = "%"),
