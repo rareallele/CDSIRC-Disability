@@ -38,38 +38,16 @@
             <br>
         </div>
 
-        <div id="seifa-dropdown" class="col-12" style="display: none;">
+        <div id="statistic_dropdown" class="col-12" style="display: none;">
             <div>
-                <label for="seifa_select"><strong style="font-size: 1em;">Select statistic:</strong></label><br>
-                <select id="seifa_select" class="form-control" style="width: 100%" onchange="setSeifa()">
-                    <option value="seifa_number.html">Number of deaths</option>
-                    <option value="seifa_rate.html">Death rate</option>
+                <label for="statistic_select"><strong style="font-size: 1em;">Select statistic:</strong></label><br>
+                <select id="statistic_select" class="form-control" style="width: 100%" onchange="setIframeStatistic()">
+                    <option id="numberofdeaths" value="numberofdeaths">Number of deaths</option>
+                    <option id="deathrate" value="">Death rate</option>
                 </select>
             </div>
             <br>
         </div>  
-        
-        <div id="remote-dropdown" class="col-12" style="display: none;">
-            <div>
-                <label for="remote_select"><strong style="font-size: 1em;">Select statistic:</strong></label><br>
-                <select id="remote_select" class="form-control" style="width: 100%" onchange="setRemote()">
-                    <option value="remote_number.html">Number of deaths</option>
-                    <option value="remote_rate.html">Death rate</option>
-                </select>
-            </div>
-            <br>
-        </div>
-
-        <div id="regions-dropdown" class="col-12" style="display: none;">
-            <div>
-                <label for="regions_select"><strong style="font-size: 1em;">Select statistic:</strong></label><br>
-                <select id="regions_select" class="form-control" style="width: 100%" onchange="setRegions()">
-                    <option value="regions_number.html">Number of deaths</option>
-                    <option value="regions_rate.html">Death rate</option>
-                </select>
-            </div>
-            <br>
-        </div>
         
         <div class="container">
             <iframe class="responsive-iframe" src="yearly_deaths.html" id="figure-display"></iframe>
