@@ -524,7 +524,10 @@ age_groups_time_all = age_groups_time_all %>%
                         type = 'bar',
                         x = ~Year,
                         y = ~perc,
-                        color = ~`Age Group`) %>% 
+                        color = ~`Age Group`,
+                        hovertemplate = paste0("Number of deaths: ", age_groups_time_all$n, "\n",
+                                               "Percentage of deaths: ", round(age_groups_time_all$perc,1), "%",
+                                               "<extra>","%{x}\n",age_groups_time_all$`Age Group`, "</extra>")) %>% 
   layout(barmode = "stack",
          font = list(size = 14),
          xaxis = list(title = "Year"),
@@ -550,7 +553,10 @@ age_groups_time_noneonates = age_groups_time_noneonates %>%
                         type = 'bar',
                         x = ~Year,
                         y = ~perc,
-                        color = ~`Age Group`) %>% 
+                        color = ~`Age Group`,
+                        hovertemplate = paste0("Number of deaths: ", age_groups_time_noneonates$n, "\n",
+                                               "Percentage of deaths: ", round(age_groups_time_noneonates$perc,1), "%",
+                                               "<extra>","%{x}\n",age_groups_time_noneonates$`Age Group`, "</extra>")) %>% 
   layout(barmode = "stack",
          font = list(size = 14),
          xaxis = list(title = "Year"),
@@ -563,5 +569,21 @@ age_groups_time_noneonates = age_groups_time_noneonates %>%
 htmlwidgets::saveWidget(age_groups_by_year_noneonates, "yearly_agegroup_noneonates.html")
 ```
 
+```{r}
+(age_groups_by_year_noneonates_number = plot_ly(
+                        data = age_groups_time_noneonates,
+                        type = 'bar',
+                        x = ~Year,
+                        y = ~n,
+                        color = ~`Age Group`) %>% 
+  layout(barmode = "stack",
+         font = list(size = 14),
+         xaxis = list(title = "Year"),
+         yaxis = list(title = "Proportion of deaths"),
+         legend = list(title = list(text="Age group",
+                                    font=list(size=14)),
+                       font=list(size = 12)))
+)
+```
 
 
