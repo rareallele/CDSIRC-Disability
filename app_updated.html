@@ -33,6 +33,7 @@
                     <option value="regions_number.html">Figure 7: Deaths by region</option>
                     <option value="cp_contact.html">Figure 8: Deaths by child protection contact</option>
                     <option value="atsi.html">Figure 9: Deaths by cultural background</option>
+                    <option value="yearly_agegroup_all.html">Figure 10: Yearly deaths by age group</option>
                 </select>
             </div>
             <br>
@@ -41,13 +42,23 @@
         <div id="statistic_dropdown" class="col-12" style="display: none;">
             <div>
                 <label for="statistic_select"><strong style="font-size: 1em;">Select statistic:</strong></label><br>
-                <select id="statistic_select" class="form-control" style="width: 100%" onchange="setIframeStatistic()">
+                <select id="statistic_select" class="form-control" style="width: 100%" onchange="setIframeStatistic(this)">
                     <option id="numberofdeaths" value="numberofdeaths">Number of deaths</option>
                     <option id="deathrate" value="">Death rate</option>
                 </select>
             </div>
             <br>
         </div>  
+
+        <div id="f10-dropdown" class="col-12" style="display: none;">
+            <div>
+                <label for="f10-filter"><strong style="font-size: 1em;">Select data:</strong></label><br>
+                <select id="f10-filter" class="form-control" style="width: 100%;" onchange="setIframeStatistic(this)">
+                    <option id="all-children" value="yearly_agegroup_all.html">All children</option>
+                    <option id="no-neonates" value="yearly_agegroup_noneonates.html">Excluding neonates</option>
+                </select>
+            </div>
+        </div>
         
         <div class="container">
             <iframe class="responsive-iframe" src="yearly_deaths.html" id="figure-display"></iframe>

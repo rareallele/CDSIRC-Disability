@@ -14,7 +14,8 @@ data = read_csv("data_0322.csv") %>%
          Year %in% seq(2005,2020)) %>% 
   mutate(`Age Group` = factor(`Age Group`, levels = 
                                 c("< 28 days", "1 to 11 months", "1 to 4 years", "5 to 9 years", 
-                                  "10 to 14 years", "15 to 17 years"))) 
+                                  "10 to 14 years", "15 to 17 years"))) %>% 
+  rename(Name = "Chapter description")
 # %>% 
 #   left_join(read_csv("C:\\Users\\jagvan\\OneDrive - South Australia Government\\REDCap\\ICD-10\\icd-10-chapters.csv")[c("Chapter", "Name")], by = "Chapter")
 
@@ -120,7 +121,7 @@ yearly_percentage = data %>%
          margin = list(l = -1, r = 50, t = 0, b = 1))
 )
 
-saveWidget(partial_bundle(yearly_deaths), "yearly_deaths.html", selfcontained = T)
+#saveWidget(partial_bundle(yearly_deaths), "yearly_deaths.html", selfcontained = T)
 ```
 
 ```{r}
@@ -174,6 +175,16 @@ age_chapter = disability %>%
 )
 
 #saveWidget(partial_bundle(age_chapter_fig), "age_chapter.html", selfcontained = T)
+```
+
+Percentage of external cause deaths by disability status
+```{r}
+external_perc = data %>% 
+  group_by(`Disability Register`, Chapter) %>% 
+  summarise(n = n()) %>% 
+  mutate(perc = ifelse(`Disability Register`=="Yes", 
+                                   n/nrow(filter(data, `Disability Register`=="Yes"))*100, 
+                                   n/nrow(filter(data, `Disability Register`=="No"))*100))
 ```
 
 ----
@@ -265,7 +276,7 @@ seifa_data = disability %>%
          font = list(size = 14))
 )
 
-saveWidget(seifa_number, "seifa_number.html", selfcontained = T)
+#saveWidget(seifa_number, "seifa_number.html", selfcontained = T)
 ```
 
 ```{r}
@@ -490,6 +501,67 @@ atsi_data = data %>%
          margin = list(l=20,r=0,t=70,b=10),
          font = list(size = 14))
 )
-saveWidget(atsi, "atsi.html", selfcontained = F, libdir = "index")
+#saveWidget(atsi, "atsi.html", selfcontained = F, libdir = "index")
 ```
+
+Chi-square of ATSI data (usual caveat that this is population data)
+```{r}
+atsi_chi_data = as.table(rbind(c(172,1161), c(34,345)))
+atsi_chi = chisq.test(atsi_chi_data)
+```
+
+
+Proportion of disability deaths in age age group over time
+```{r}
+age_groups_time_all = disability %>% 
+  group_by(Year, `Age Group`) %>% 
+  summarise(n = n()) 
+age_groups_time_all = age_groups_time_all %>% 
+  mutate(perc = n/nrow(disability[disability["Year"]==Year,])*100)
+
+(age_groups_by_year_all = plot_ly(
+                        data = age_groups_time_all,
+                        type = 'bar',
+                        x = ~Year,
+                        y = ~perc,
+                        color = ~`Age Group`) %>% 
+  layout(barmode = "stack",
+         font = list(size = 14),
+         xaxis = list(title = "Year"),
+         yaxis = list(title = "Proportion of deaths"),
+         legend = list(title = list(text="Age group",
+                                    font=list(size=12)),
+                       font=list(size = 12)))
+)
+
+htmlwidgets::saveWidget(age_groups_by_year_all, "yearly_agegroup_all.html")
+```
+
+```{r}
+disability_noneonates = filter(disability, `Age Group` != "< 28 days")
+age_groups_time_noneonates = disability_noneonates %>% 
+  group_by(Year, `Age Group`) %>% 
+  summarise(n = n()) 
+age_groups_time_noneonates = age_groups_time_noneonates %>% 
+  mutate(perc = n/nrow(disability_noneonates[disability_noneonates["Year"]==Year,])*100)
+
+(age_groups_by_year_noneonates = plot_ly(
+                        data = age_groups_time_noneonates,
+                        type = 'bar',
+                        x = ~Year,
+                        y = ~perc,
+                        color = ~`Age Group`) %>% 
+  layout(barmode = "stack",
+         font = list(size = 14),
+         xaxis = list(title = "Year"),
+         yaxis = list(title = "Proportion of deaths"),
+         legend = list(title = list(text="Age group",
+                                    font=list(size=14)),
+                       font=list(size = 12)))
+)
+
+htmlwidgets::saveWidget(age_groups_by_year_noneonates, "yearly_agegroup_noneonates.html")
+```
+
+
 

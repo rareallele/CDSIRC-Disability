@@ -3,12 +3,10 @@ function setIframe() {
     document.getElementById("figure-display").src = selection
 }
 
-function setIframeStatistic() {
-  var selection = document.getElementById("statistic_select").value;
+function setIframeStatistic(option) {
+  var selection = option.value;
   document.getElementById("figure-display").src = selection
 }
-
-
 
 function openPanel() {
     var panel = document.getElementById("panel");
@@ -33,25 +31,35 @@ $(document).ready(function(){
         document.getElementById('numberofdeaths').value = "seifa_number.html";
         document.getElementById('deathrate').value = "seifa_rate.html";
         document.getElementById('statistic_select').value = "seifa_number.html";
+        document.getElementById("f10-dropdown").style.display = 'none';
         break;
       case "remote_number.html":
         document.getElementById('statistic_dropdown').style.display = 'block';
         document.getElementById('numberofdeaths').value = "remote_number.html";
         document.getElementById('deathrate').value = "remote_rate.html";
         document.getElementById('statistic_select').value = "remote_number.html";
+        document.getElementById("f10-dropdown").style.display = 'none';
         break;
       case "regions_number.html":
         document.getElementById('statistic_dropdown').style.display = 'block';
         document.getElementById('numberofdeaths').value = "regions_number.html";
         document.getElementById('deathrate').value = "regions_rate.html";
         document.getElementById('statistic_select').value = "regions_number.html";
+        document.getElementById("f10-dropdown").style.display = 'none';
+        break;
+      case "yearly_agegroup_all.html":
+        document.getElementById('statistic_dropdown').style.display = 'none';
+        document.getElementById("f10-dropdown").style.display = 'block';
+        break;
+      case !"yearly_agegroup_all.html":
+        document.getElementById("f10-dropdown").style.display = 'none';
         break;
       default:
         document.getElementById('statistic_dropdown').style.display = 'none';
+        document.getElementById("f10-dropdown").style.display = 'none';
     }
     
   })
 })
-
 
 
