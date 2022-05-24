@@ -26,37 +26,18 @@ $(document).ready(function(){
   $("#fig_select").on("change", function(){
     
     switch($("#fig_select :selected").val()){
-      case "seifa_number.html":
+      case "Figures/remote_number.html":
         document.getElementById('statistic_dropdown').style.display = 'block';
-        document.getElementById('numberofdeaths').value = "seifa_number.html";
-        document.getElementById('deathrate').value = "seifa_rate.html";
-        document.getElementById('statistic_select').value = "seifa_number.html";
-        document.getElementById("f10-dropdown").style.display = 'none';
+        document.getElementById('numberofdeaths').value = "Figures/remote_number.html";
+        document.getElementById('deathrate').value = "Figures/remote_rate.html";
+        document.getElementById('statistic_select').value = "Figures/remote_number.html";
         break;
-      case "remote_number.html":
+      case "Figures/regions_number.html":
         document.getElementById('statistic_dropdown').style.display = 'block';
-        document.getElementById('numberofdeaths').value = "remote_number.html";
-        document.getElementById('deathrate').value = "remote_rate.html";
-        document.getElementById('statistic_select').value = "remote_number.html";
-        document.getElementById("f10-dropdown").style.display = 'none';
+        document.getElementById('numberofdeaths').value = "Figures/regions_number.html";
+        document.getElementById('deathrate').value = "Figures/regions_rate.html";
+        document.getElementById('statistic_select').value = "Figures/regions_number.html";
         break;
-      case "regions_number.html":
-        document.getElementById('statistic_dropdown').style.display = 'block';
-        document.getElementById('numberofdeaths').value = "regions_number.html";
-        document.getElementById('deathrate').value = "regions_rate.html";
-        document.getElementById('statistic_select').value = "regions_number.html";
-        document.getElementById("f10-dropdown").style.display = 'none';
-        break;
-      case "yearly_agegroup_all.html":
-        document.getElementById('statistic_dropdown').style.display = 'none';
-        document.getElementById("f10-dropdown").style.display = 'block';
-        break;
-      case !"yearly_agegroup_all.html":
-        document.getElementById("f10-dropdown").style.display = 'none';
-        break;
-      default:
-        document.getElementById('statistic_dropdown').style.display = 'none';
-        document.getElementById("f10-dropdown").style.display = 'none';
     }
     
   })

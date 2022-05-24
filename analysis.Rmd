@@ -6,22 +6,42 @@ output: html_notebook
 library(tidyverse)
 library(plotly)
 library(htmlwidgets)
+library(odbc)
+library(DBI)
 ```
 
 ```{r}
-data = read_csv("data_0322.csv") %>% 
+# cdr_query <- read_file("C:\\Users\\jagvan\\OneDrive - South Australia Government\\Code\\SQL Server Management Studio\\Queries\\BusinessView_CDR.sql")
+# disability_query <- read_file("C:\\Users\\jagvan\\OneDrive - South Australia Government\\Code\\SQL Server Management Studio\\Queries\\BusinessView_Disability.sql")
+# icd_query <- read_file("C:\\Users\\jagvan\\OneDrive - South Australia Government\\Code\\SQL Server Management Studio\\Queries\\BusinessView_ICD-10_updated.sql")
+# 
+# con <- dbConnect(odbc(), "CDR-DSN")
+# 
+# data <- dbGetQuery(con, cdr_query) %>% 
+#   left_join(dbGetQuery(con, disability_query),
+#             by = "Case Number") %>% 
+#   left_join(dbGetQuery(con, icd_query),
+#             by = "Case Number") %>% 
+#   filter(!`Case Number` %in% readxl::read_xlsx("C:\\Users\\jagvan\\OneDrive - South Australia Government\\Code\\exclusions_2022.xlsx")$`Case Number`,
+#          `Year of Death` %in% seq(2005,2020)) %>% 
+#   mutate(`Age Group` = factor(`Age Group`, levels = 
+#                                 c("< 28 days", "1 to 11 months", "1 to 4 years", "5 to 9 years", 
+#                                   "10 to 14 years", "15 to 17 years"))) %>% 
+#   rename(Year = `Year of Death`)
+
+data <- read_csv("data_0322.csv") %>%  
   filter(!`Case Number` %in% readxl::read_xlsx("C:\\Users\\jagvan\\OneDrive - South Australia Government\\Code\\exclusions_2022.xlsx")$`Case Number`,
-         Year %in% seq(2005,2020)) %>% 
+         `Year` %in% seq(2005,2020)) %>% 
   mutate(`Age Group` = factor(`Age Group`, levels = 
                                 c("< 28 days", "1 to 11 months", "1 to 4 years", "5 to 9 years", 
-                                  "10 to 14 years", "15 to 17 years"))) %>% 
-  rename(Name = "Chapter description")
-# %>% 
-#   left_join(read_csv("C:\\Users\\jagvan\\OneDrive - South Australia Government\\REDCap\\ICD-10\\icd-10-chapters.csv")[c("Chapter", "Name")], by = "Chapter")
+                                  "10 to 14 years", "15 to 17 years"))) 
+```
 
+```{r}
 disability = data %>% filter(`Disability Register` == "Yes") %>% 
   mutate("Infant with disability" = ifelse(`Age (years)` < 1, "Yes", "No"))
 ```
+
 
 ```{r}
 disability_long = pivot_longer(disability, 
@@ -121,13 +141,13 @@ yearly_percentage = data %>%
          margin = list(l = -1, r = 50, t = 0, b = 1))
 )
 
-#saveWidget(partial_bundle(yearly_deaths), "yearly_deaths.html", selfcontained = T)
+#saveWidget(partial_bundle(yearly_deaths), "Figures/yearly_deaths.html", selfcontained = F, libdir = "index_files")
 ```
 
 ```{r}
 chapter_age = disability %>% 
   mutate(Chapter = as.factor(Chapter)) %>% 
-  group_by(`Age Group`, Chapter, Name) %>% 
+  group_by(`Age Group`, Chapter, `Chapter description`) %>% 
   tally()
 ```
 
@@ -148,13 +168,13 @@ chapter_age = disability %>%
                        font=list(size = 12)))
 )
 
-#saveWidget(partial_bundle(chapter_age_fig), "chapter_age.html", selfcontained = T)
+#saveWidget(partial_bundle(chapter_age_fig), "Figures/chapter_age.html", selfcontained = F, libdir = "index_files")
 ```
 
 ```{r}
 age_chapter = disability %>% 
   mutate(Chapter = as.factor(Chapter)) %>% 
-  group_by(Chapter, Name, `Age Group`) %>% 
+  group_by(Chapter, `Chapter description`, `Age Group`) %>% 
   tally()
 
 (age_chapter_fig <- plot_ly(age_chapter,
@@ -163,7 +183,7 @@ age_chapter = disability %>%
         y = ~n,
         color = ~fct_rev(`Age Group`),
         hovertemplate = paste0("Age group: ", age_chapter$`Age Group`, "\n",
-                               "Chapter ", age_chapter$Chapter, ": ", age_chapter$Name, "\n",
+                               "Chapter ", age_chapter$Chapter, ": ", age_chapter$`Chapter description`, "\n",
                                "Deaths: ", age_chapter$n, "<extra></extra>")) %>% 
   layout(barmode = "stack",
          font = list(size = 14),
@@ -174,7 +194,7 @@ age_chapter = disability %>%
                        font=list(size = 12))
 )
 
-#saveWidget(partial_bundle(age_chapter_fig), "age_chapter.html", selfcontained = T)
+#saveWidget(partial_bundle(age_chapter_fig), "Figures/age_chapter.html", selfcontained = F, libdir = "index_files")
 ```
 
 Percentage of external cause deaths by disability status
@@ -357,8 +377,8 @@ remote_data = disability %>%
          font = list(size = 14))
 )
 
-saveWidget(remote_number, "remote_number.html", selfcontained = F, libdir = "index")
-saveWidget(remote_rate, "remote_rate.html", selfcontained = T)
+saveWidget(remote_number, "Figures/remote_number.html", selfcontained = F, libdir = "index_files")
+saveWidget(remote_rate, "Figures/remote_rate.html", selfcontained = F, libdir = "index_files")
 ```
 
 
