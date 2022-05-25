@@ -3,10 +3,15 @@ function setIframe() {
     document.getElementById("figure-display").src = selection
 }
 
-function setIframeStatistic(option) {
-  var selection = option.value;
-  document.getElementById("figure-display").src = selection
+function subButtonSetIframe(clickedButton) {
+  var subButtons = document.querySelectorAll("button.cod-sub-button");
+  subButtons.forEach(function(button) {
+    button.classList.remove('activeButton')
+  });
+  clickedButton.classList.add('activeButton');
+  document.getElementById("figure-display").src = clickedButton.value;
 }
+
 
 function openPanel() {
     var panel = document.getElementById("panel");
@@ -24,20 +29,14 @@ function openPanel() {
 
 $(document).ready(function(){
   $("#fig_select").on("change", function(){
-    
     switch($("#fig_select :selected").val()){
       case "Figures/remote_number.html":
-        document.getElementById('statistic_dropdown').style.display = 'block';
-        document.getElementById('numberofdeaths').value = "Figures/remote_number.html";
-        document.getElementById('deathrate').value = "Figures/remote_rate.html";
-        document.getElementById('statistic_select').value = "Figures/remote_number.html";
+        document.getElementById("buttonBlock").style.display = 'flex';
+        document.getElementById("b1").classList.add('activeButton');
+        document.getElementById("b2").classList.remove('activeButton');
         break;
-      case "Figures/regions_number.html":
-        document.getElementById('statistic_dropdown').style.display = 'block';
-        document.getElementById('numberofdeaths').value = "Figures/regions_number.html";
-        document.getElementById('deathrate').value = "Figures/regions_rate.html";
-        document.getElementById('statistic_select').value = "Figures/regions_number.html";
-        break;
+      default:
+        document.getElementById("buttonBlock").style.display = 'none';
     }
     
   })

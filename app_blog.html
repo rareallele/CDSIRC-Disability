@@ -16,33 +16,27 @@
         <p>
 
         </p>
-        <br>
+        
     </div>
 
     <div class="row">
         <div id="dropdown" class="col-12">
-                <label for="fig_select"><strong style="font-size: 1em;">Select figure:</strong></label><br>
-                <select id="fig_select" class="form-control" style="width: 100%" onchange="setIframe()">
-                    <option value="Figures/yearly_deaths.html">Figure 1: Deaths by year</option>
-                    <option value="Figures/chapter_age.html">Figure 2: ICD-10 chapter by age group</option>
-                    <option value="Figures/age_chapter.html">Figure 3: Age group by ICD-10 chapter</option>
-                    <option value="Figures/remote_number.html">Figure 4: Deaths by remoteness area</option>
-                    </select>
+            <label for="fig_select"><strong style="font-size: 1em;">Select figure:</strong></label><br>
+            <select id="fig_select" class="form-control" style="width: 100%" onchange="setIframe()">
+                <option value="Figures/yearly_deaths.html">Figure 1: Deaths by year</option>
+                <option value="Figures/chapter_age.html">Figure 2: ICD-10 chapter by age group</option>
+                <option value="Figures/age_chapter.html">Figure 3: Age group by ICD-10 chapter</option>
+                <option value="Figures/remote_number.html">Figure 4: Deaths by remoteness area</option>
+            </select>
             <br>
         </div>
 
-        <div id="statistic_dropdown" class="col-12" style="display: none;">
-            <div>
-                <label for="statistic_select"><strong style="font-size: 1em;">Select statistic:</strong></label><br>
-                <select id="statistic_select" class="form-control" style="width: 100%" onchange="setIframeStatistic(this)">
-                    <option id="numberofdeaths" value="numberofdeaths">Number of deaths</option>
-                    <option id="deathrate" value="">Death rate</option>
-                </select>
-            </div>
+        <div class="col-12" id="buttonBlock" style="display: none;">
+            <button id="b1" class="cod-sub-button activeButton" value="Figures/remote_number.html" onclick="subButtonSetIframe(this)">Number of deaths</button>
+            <button id="b2" class="cod-sub-button" value="Figures/remote_rate.html" onclick="subButtonSetIframe(this)">Death rate</button>
             <br>
-        </div>  
+        </div> 
 
-        
         <div class="container">
             <iframe class="responsive-iframe" src="Figures/yearly_deaths.html" id="figure-display"></iframe>
         </div>

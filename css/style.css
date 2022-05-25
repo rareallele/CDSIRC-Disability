@@ -34,6 +34,23 @@ h2 {
     font-size: 1em;
 }
 
+button:focus {
+  outline: none;
+}
+
+.cod-sub-button {
+  background-color: #eee; 
+  border: none;
+  color: black;
+  padding: 15px 32px;
+  display: inline-flex;
+  margin: left;
+  width: 50%;
+  height: 35px;
+  align-items: center;
+  text-align: center;
+  justify-content: space-around;
+}
 
 @media (max-width: 900px){
     .text-section, .row {
@@ -60,7 +77,7 @@ h2 {
   }
   
   /* Add a background color to the button if it is clicked on (add the .active class with JS), and when you move the mouse over it (hover) */
-  .active, .accordion:hover {
+  .active, .accordion:hover, .activeButton, .cod-sub-button:hover {
     background-color: #ccc;
   }
   
