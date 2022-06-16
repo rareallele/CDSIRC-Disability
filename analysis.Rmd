@@ -157,8 +157,8 @@ chapter_age = disability %>%
         x = ~`Age Group`,
         y = ~n,
         color = ~fct_rev(Chapter),
-        hovertemplate = paste0("Chapter ", chapter_age$Chapter, ": ", chapter_age$Name, "\n",
-                               "Deaths: ", chapter_age$n, "<extra></extra>")) %>% 
+        hovertemplate = paste0("Chapter ", chapter_age$Chapter, ": ", chapter_age$`Chapter description`, "\n",
+                               "Deaths: ", chapter_age$n, "<extra>", chapter_age$`Age Group`,"</extra>")) %>% 
   layout(barmode = "stack",
          font = list(size = 14),
          xaxis = list(title = "Age group"),
