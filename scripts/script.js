@@ -12,19 +12,35 @@ function subButtonSetIframe(clickedButton) {
   document.getElementById("figure-display").src = clickedButton.value;
 }
 
-
+/*
 function openPanel() {
     var panel = document.getElementById("panel");
     var acc = document.getElementsByClassName("accordion")[0]
-    /* Toggle between adding and removing the "active" class,
-    to highlight the button that controls the panel */
+    // Toggle between adding and removing the "active" class,
+    // to highlight the button that controls the panel 
     acc.classList.toggle("active");
-    /* Toggle between hiding and showing the active panel */
+    // Toggle between hiding and showing the active panel 
     if (panel.style.display === "block") {
         panel.style.display = "none";
       } else {
         panel.style.display = "block";
       }
+}
+*/
+
+function openPanel(clicked) { 
+  var acc_id = clicked;
+  var acc = document.getElementById(acc_id);
+  var panel = acc.nextElementSibling;
+  
+  acc.classList.toggle("active");
+  //Toggle between hiding and showing the active panel
+  if (panel.style.display === "block") {
+      panel.style.display = "none";
+    } else {
+      panel.style.display = "block";
+    }
+  
 }
 
 $(document).ready(function(){
